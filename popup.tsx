@@ -4,6 +4,7 @@ import { ClipboardSearch } from "./src/components/clipboard-search"
 import { ClipboardHistoryItem } from "./src/components/clipboard-history-item"
 import { copyTextToClipboard, getClipboardSearchText } from "./src/utils/clipboard-utils"
 import type { ClipboardItem } from "./src/types/clipboard"
+import "./src/styles/globals.css"
 
 function IndexPopup() {
   const items = useClipboardStore((state) => state.items)
@@ -22,9 +23,12 @@ function IndexPopup() {
 
   const filteredItems = useMemo(
     () =>
-      items.filter((item) =>
-        getClipboardSearchText(item).includes(searchTerm.toLowerCase())
-      ),
+      items
+        .slice()
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .filter((item) =>
+          getClipboardSearchText(item).includes(searchTerm.toLowerCase())
+        ),
     [items, searchTerm]
   )
 
@@ -51,19 +55,29 @@ function IndexPopup() {
   }
 
   return (
-    <div>
-      <header>
-        <h1>Clipstash</h1>
-        <p>Clipboard history</p>
+    <div className="min-h-[520px] w-[360px] rounded-3xl bg-white p-5 shadow-soft ring-1 ring-slate-200">
+      <header className="mb-4">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">Clipstash</h1>
+            <p className="text-sm text-slate-500">Recent clipboard items</p>
+          </div>
+        </div>
       </header>
 
       <ClipboardSearch value={searchTerm} onChange={setSearchTerm} />
 
-      {statusMessage ? <div>{statusMessage}</div> : null}
+      {statusMessage ? (
+        <div className="mt-4 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700 shadow-sm">
+          {statusMessage}
+        </div>
+      ) : null}
 
-      <main>
+      <main className="mt-4 space-y-3">
         {filteredItems.length === 0 ? (
-          <div>No clipboard history found.</div>
+          <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500">
+            No clipboard history yet. Copy any text to start.
+          </div>
         ) : (
           filteredItems.map((item) => (
             <ClipboardHistoryItem
