@@ -11,6 +11,7 @@ export interface ClipboardStoreState {
   addClipboardItem: (item: Omit<ClipboardItem, "id" | "createdAt" | "updatedAt">) => Promise<ClipboardItem>
   updateClipboardItem: (id: string, changes: ClipboardItemUpdate) => Promise<ClipboardItem | undefined>
   deleteClipboardItem: (id: string) => Promise<void>
+  toggleClipboardItemPin: (id: string) => Promise<ClipboardItem | undefined>
   setActiveItem: (id: string | null) => void
   clearClipboardItems: () => Promise<void>
 }
@@ -21,9 +22,17 @@ export const useClipboardStore = create<ClipboardStoreState>((set, get) => ({
   isLoaded: false,
 
   loadClipboardItems: async () => {
-    const items = await db.clipboardItems.orderBy("createdAt").reverse().toArray()
-    set({ items, isLoaded: true })
-    return items
+    const allItems = await db.clipboardItems.orderBy("createdAt").reverse().toArray()
+    if (allItems.length > 100) {
+      const overflowIds = allItems.slice(100).map((item) => item.id)
+      await db.clipboardItems.bulkDelete(overflowIds)
+      const items = allItems.slice(0, 100)
+      set({ items, isLoaded: true })
+      return items
+    }
+
+    set({ items: allItems, isLoaded: true })
+    return allItems
   },
 
   addClipboardItem: async (item) => {
@@ -35,8 +44,27 @@ export const useClipboardStore = create<ClipboardStoreState>((set, get) => ({
       updatedAt: timestamp
     }
 
-    await db.clipboardItems.put(clipboardItem)
-    set((state) => ({ items: [clipboardItem, ...state.items] }))
+    await db.transaction("rw", db.clipboardItems, async () => {
+      await db.clipboardItems.put(clipboardItem)
+      const totalCount = await db.clipboardItems.count()
+      if (totalCount > 100) {
+        const overflowIds = await db.clipboardItems
+          .orderBy("createdAt")
+          .limit(totalCount - 100)
+          .keys()
+
+        await db.clipboardItems.bulkDelete(overflowIds)
+      }
+    })
+
+    set((state) => {
+      const nextItems = [clipboardItem, ...state.items]
+        .sort((first, second) => second.createdAt - first.createdAt)
+        .slice(0, 100)
+
+      return { items: nextItems }
+    })
+
     return clipboardItem
   },
 
@@ -63,6 +91,28 @@ export const useClipboardStore = create<ClipboardStoreState>((set, get) => ({
       items: state.items.filter((item) => item.id !== id),
       activeItemId: state.activeItemId === id ? null : state.activeItemId
     }))
+  },
+
+  toggleClipboardItemPin: async (id) => {
+    const currentItem = get().items.find((item) => item.id === id)
+    if (!currentItem) {
+      return undefined
+    }
+
+    const updatedAt = Date.now()
+    const updates: ClipboardItemUpdate = {
+      pinned: !currentItem.pinned,
+      updatedAt
+    }
+
+    await db.clipboardItems.update(id, updates)
+
+    const nextItems = get().items.map((item) =>
+      item.id === id ? { ...item, ...updates } : item
+    )
+
+    set({ items: nextItems })
+    return nextItems.find((item) => item.id === id)
   },
 
   setActiveItem: (id) => set({ activeItemId: id }),

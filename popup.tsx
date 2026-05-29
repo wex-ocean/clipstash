@@ -10,6 +10,8 @@ function IndexPopup() {
   const items = useClipboardStore((state) => state.items)
   const loadClipboardItems = useClipboardStore((state) => state.loadClipboardItems)
   const deleteClipboardItem = useClipboardStore((state) => state.deleteClipboardItem)
+  const toggleClipboardItemPin = useClipboardStore((state) => state.toggleClipboardItemPin)
+  const clearClipboardItems = useClipboardStore((state) => state.clearClipboardItems)
 
   const [searchTerm, setSearchTerm] = useState("")
   const [copyingId, setCopyingId] = useState<string | null>(null)
@@ -25,7 +27,13 @@ function IndexPopup() {
     () =>
       items
         .slice()
-        .sort((a, b) => b.createdAt - a.createdAt)
+        .sort((a, b) => {
+          if (a.pinned !== b.pinned) {
+            return a.pinned ? -1 : 1
+          }
+
+          return b.createdAt - a.createdAt
+        })
         .filter((item) =>
           getClipboardSearchText(item).includes(searchTerm.toLowerCase())
         ),
@@ -54,14 +62,40 @@ function IndexPopup() {
     deleteClipboardItem(id)
   }
 
+  function handlePinToggle(id: string) {
+    toggleClipboardItemPin(id).catch(() => {
+      setStatusMessage("Unable to update pin state")
+      window.setTimeout(() => setStatusMessage(null), 1500)
+    })
+  }
+
+  function handleClearAll() {
+    const confirmed = window.confirm("Clear all clipboard history? This cannot be undone.")
+    if (!confirmed) {
+      return
+    }
+
+    clearClipboardItems().catch(() => {
+      setStatusMessage("Unable to clear history")
+      window.setTimeout(() => setStatusMessage(null), 1500)
+    })
+  }
+
   return (
     <div className="min-h-[520px] w-[360px] rounded-3xl bg-white p-5 shadow-soft ring-1 ring-slate-200">
       <header className="mb-4">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-semibold text-slate-900">Clipstash</h1>
             <p className="text-sm text-slate-500">Recent clipboard items</p>
           </div>
+          <button
+            type="button"
+            onClick={handleClearAll}
+            className="rounded-2xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+          >
+            Clear all
+          </button>
         </div>
       </header>
 
@@ -84,6 +118,7 @@ function IndexPopup() {
               key={item.id}
               item={item}
               onCopy={handleCopy}
+              onPin={handlePinToggle}
               onDelete={handleDelete}
               isCopying={copyingId === item.id}
             />
