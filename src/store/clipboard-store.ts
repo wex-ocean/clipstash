@@ -14,6 +14,7 @@ export interface ClipboardStoreState {
   toggleClipboardItemPin: (id: string) => Promise<ClipboardItem | undefined>
   setActiveItem: (id: string | null) => void
   clearClipboardItems: () => Promise<void>
+  importClipboardItems: (items: ClipboardItem[]) => Promise<number>
 }
 
 export const useClipboardStore = create<ClipboardStoreState>((set, get) => ({
@@ -120,5 +121,24 @@ export const useClipboardStore = create<ClipboardStoreState>((set, get) => ({
   clearClipboardItems: async () => {
     await db.clipboardItems.clear()
     set({ items: [], activeItemId: null })
+  },
+
+  importClipboardItems: async (items) => {
+    if (items.length === 0) return 0
+
+    await db.transaction("rw", db.clipboardItems, async () => {
+      await db.clipboardItems.bulkPut(items)
+    })
+
+    // Reload full list from DB to ensure consistency
+    const allItems = await db.clipboardItems.orderBy("createdAt").reverse().toArray()
+    const trimmed = allItems.slice(0, 100)
+    if (allItems.length > 100) {
+      const overflowIds = allItems.slice(100).map((i) => i.id)
+      await db.clipboardItems.bulkDelete(overflowIds)
+    }
+
+    set({ items: trimmed, isLoaded: true })
+    return items.length
   }
 }))

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useClipboardStore } from "./src/store/clipboard-store"
 import { ClipboardSearch } from "./src/components/clipboard-search"
 import { ClipboardHistoryItem } from "./src/components/clipboard-history-item"
+import { ExportImportMenu } from "./src/components/export-import-menu"
 import { copyTextToClipboard, getClipboardSearchText } from "./src/utils/clipboard-utils"
 import type { ClipboardItem } from "./src/types/clipboard"
 import "./src/styles/globals.css"
@@ -89,13 +90,21 @@ function IndexPopup() {
             <h1 className="text-xl font-semibold text-slate-900">Clipstash</h1>
             <p className="text-sm text-slate-500">Recent clipboard items</p>
           </div>
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="rounded-2xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
-          >
-            Clear all
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportImportMenu
+              onStatusMessage={(msg) => {
+                setStatusMessage(msg)
+                window.setTimeout(() => setStatusMessage(null), 2500)
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleClearAll}
+              className="rounded-2xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100"
+            >
+              Clear all
+            </button>
+          </div>
         </div>
       </header>
 
