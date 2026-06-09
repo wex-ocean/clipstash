@@ -1,4 +1,4 @@
-import create from "zustand"
+import { create } from "zustand"
 import type { ClipboardItem, ClipboardItemUpdate } from "../types/clipboard"
 import { db } from "../db/clipstash-db"
 import { generateClipboardItemId } from "../models/clipboard-item"
@@ -43,7 +43,7 @@ export const useClipboardStore = create<ClipboardStoreState>((set, get) => ({
       ...item,
       createdAt: timestamp,
       updatedAt: timestamp
-    }
+    } as ClipboardItem
 
     await db.transaction("rw", db.clipboardItems, async () => {
       await db.clipboardItems.put(clipboardItem)

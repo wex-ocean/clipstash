@@ -1,4 +1,5 @@
 import type { ChangeEvent } from "react"
+import { SearchIcon } from "./icons"
 
 interface ClipboardSearchProps {
   value: string
@@ -11,14 +12,16 @@ export function ClipboardSearch({ value, onChange }: ClipboardSearchProps) {
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-slate-50 px-3 py-2 shadow-sm transition-colors duration-150 focus-within:border-slate-400">
+    <label className="flex items-center gap-2 rounded-[16px] border border-slate-200 bg-slate-50 px-3 py-2.5 shadow-sm transition focus-within:border-slate-300 focus-within:bg-white focus-within:shadow-md">
+      <SearchIcon className="h-4 w-4 text-slate-400" />
       <input
-        className="w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400"
+        className="w-full bg-transparent text-[13px] text-slate-900 outline-none placeholder:text-slate-400"
         type="search"
         value={value}
         onChange={handleInput}
-        placeholder="Search clipboard history..."
+        placeholder="Search clipboard history"
+        aria-label="Search clipboard history"
       />
-    </div>
+    </label>
   )
 }
