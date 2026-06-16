@@ -41,5 +41,6 @@ input:focus-visible {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-white/12;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.12);
 }
