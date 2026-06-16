@@ -100,7 +100,7 @@ export function ExportImportMenu({ onStatusMessage }: ExportImportMenuProps) {
         type="button"
         onClick={() => setIsOpen((current) => !current)}
         disabled={isImporting}
-        className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-[12px] font-semibold text-slate-100 transition hover:bg-white/15 disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-full border border-[#4DA3FF]/20 bg-[#14101E] px-4 py-2 text-[12px] font-semibold text-[#DDE9FF] transition duration-200 hover:border-[#6BCBFF]/30 hover:bg-[#1A1134] disabled:opacity-60"
         aria-label="Export or import clipboard history"
         aria-expanded={isOpen}
       >
@@ -111,28 +111,28 @@ export function ExportImportMenu({ onStatusMessage }: ExportImportMenuProps) {
           </span>
         ) : (
           <>
-            <MoreIcon className="h-3.5 w-3.5" />
+            <MoreIcon className="h-4 w-4 text-[#4DA3FF]" />
             Actions
           </>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-[calc(100%+0.5rem)] z-20 w-52 overflow-hidden rounded-[16px] border border-slate-200 bg-white p-1.5 shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
+        <div className="absolute right-0 top-[calc(100%+0.75rem)] z-20 w-56 overflow-hidden rounded-[20px] border border-white/10 bg-[#0E0C16]/95 p-1.5 shadow-[0_24px_70px_rgba(0,0,0,0.35)] backdrop-blur-xl">
           <button
             type="button"
             onClick={handleExport}
-            className="flex w-full items-center gap-2 rounded-[12px] px-3 py-2 text-left text-[13px] font-medium text-slate-700 transition hover:bg-slate-50"
+            className="flex w-full items-center gap-2 rounded-[16px] px-4 py-3 text-left text-[13px] font-semibold text-slate-200 transition duration-200 hover:bg-white/5"
           >
-            <ExportIcon className="h-4 w-4 text-slate-500" />
+            <ExportIcon className="h-4 w-4 text-[#6BCBFF]" />
             Export history
           </button>
           <button
             type="button"
             onClick={handleImportClick}
-            className="mt-1 flex w-full items-center gap-2 rounded-[12px] px-3 py-2 text-left text-[13px] font-medium text-slate-700 transition hover:bg-slate-50"
+            className="mt-1 flex w-full items-center gap-2 rounded-[16px] px-4 py-3 text-left text-[13px] font-semibold text-slate-200 transition duration-200 hover:bg-white/5"
           >
-            <ImportIcon className="h-4 w-4 text-slate-500" />
+            <ImportIcon className="h-4 w-4 text-[#4DA3FF]" />
             Import history
           </button>
         </div>
