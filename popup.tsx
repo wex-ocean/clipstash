@@ -3,7 +3,7 @@ import { useClipboardStore } from "./src/store/clipboard-store"
 import { ClipboardSearch } from "./src/components/clipboard-search"
 import { ClipboardHistoryItem } from "./src/components/clipboard-history-item"
 import { ExportImportMenu } from "./src/components/export-import-menu"
-import { FilterIcon, SparkIcon } from "./src/components/icons"
+import { ClipstashLogoIcon, FilterIcon, SparkIcon } from "./src/components/icons"
 import { copyTextToClipboard, getClipboardSearchText } from "./src/utils/clipboard-utils"
 import type { ClipboardItem } from "./src/types/clipboard"
 import "./src/styles/globals.css"
@@ -114,8 +114,8 @@ function IndexPopup() {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-[18px] bg-white/10 ring-1 ring-white/10 backdrop-blur-xl">
-                <SparkIcon className="h-5 w-5 text-[#6BCBFF]" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-[20px] bg-white/10 ring-1 ring-white/10 shadow-[0_14px_40px_rgba(77,163,255,0.16)] backdrop-blur-xl">
+                <ClipstashLogoIcon className="h-7 w-7" />
               </div>
               <div className="min-w-0">
                 <h1 className="text-[18px] font-semibold tracking-tight text-white">Clipstash</h1>
